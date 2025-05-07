@@ -1,9 +1,10 @@
 import "./App.css";
+import Body from "./components/Body/Body";
 
 function App() {
   return (
     <>
-      <h1 className="text-2xl font-bold text-green-600">hello</h1>
+      <Body />
     </>
   );
 }

@@ -119,14 +119,13 @@ const Login = () => {
               type="password"
               ref={password}
               placeholder="Password"
-              className="w-full p-3 mb-2 rounded bg-gray-700 text-white placeholder-white"
+              className="w-full p-3 mb-3 rounded bg-gray-700 text-white placeholder-white"
             />
             {errorMsg && (
               <p className="font-bold text-red-800 text-xs py-3">{errorMsg}</p>
             )}
             <button
               onClick={handleSignSubmit}
-              style={{ backgroundColor: "red" }}
               className="bg-red-700 w-full text-white py-3 mb-6 rounded cursor-pointer"
             >
               {isSignIn ? "Sign In" : "Sign Up"}

@@ -1,16 +1,15 @@
 import React from "react";
 import Header from "../Header/Header";
-
+import useNowPlayingMovies from "../../utils/Hooks/useNowPlayingMovies";
+import MainContainer from "./MainContainer";
+import ListContainer from "./ListContainer";
 const Browse = () => {
+  useNowPlayingMovies();
   return (
-    <div className="">
+    <div>
       <Header />
-      <h1>hello</h1>
-      <h1>hello</h1>
-      <h1>hello</h1>
-      <h1>hello</h1>
-      <h1>hello</h1>
-      <h1>hello</h1>
+      <MainContainer />
+      <ListContainer />
     </div>
   );
 };

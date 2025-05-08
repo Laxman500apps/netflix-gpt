@@ -1,23 +1,27 @@
 import React, { useRef, useState } from "react";
-import Header from "../Header/Header";
 import { validate } from "../../utils/validate";
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
+  updateProfile,
 } from "firebase/auth";
 import { auth } from "../../utils/firebase";
+import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { addUser } from "../../utils/userSlice";
 
 const Login = () => {
   const [isSignIn, setIsSignIn] = useState(true);
   const [errorMsg, setErrorMsg] = useState(null);
+  const dispatch = useDispatch();
   const email = useRef(null);
   const name = useRef(null);
   const password = useRef(null);
+  const navigate = useNavigate();
   const toggleSignIn = () => {
     setIsSignIn(!isSignIn);
     email.current.value = "";
     password.current.value = "";
-    name.current.value = "";
   };
   const handleSignSubmit = () => {
     const enteredName = !isSignIn ? name.current.value : undefined;
@@ -37,13 +41,32 @@ const Login = () => {
         .then((userCredential) => {
           // Signed up
           const user = userCredential.user;
-          console.log(user);
-          // ...
+          updateProfile(user, {
+            displayName: name.current.value,
+            photoURL: "https://example.com/jane-q-user/profile.jpg",
+          })
+            .then(() => {
+              const { uid, email, displayName, photoURL } = auth.currentUser;
+              dispatch(
+                addUser({
+                  uid: uid,
+                  email: email,
+                  displayName: displayName,
+                  photoURL: photoURL,
+                })
+              );
+              email.current.value = "";
+              password.current.value = "";
+              name.current.value = "";
+              navigate("/Browse");
+            })
+            .catch((error) => {
+              setErrorMsg(error);
+            });
         })
         .catch((error) => {
-          const errorCode = error.code;
           const errorMessage = error.message;
-          setErrorMsg("Unable to Sign Up");
+          setErrorMsg(errorMessage);
         });
     } else {
       signInWithEmailAndPassword(
@@ -54,20 +77,24 @@ const Login = () => {
         .then((userCredential) => {
           // Signed in
           const user = userCredential.user;
-          console.log(user);
-          // ...
+          email.current.value = "";
+          password.current.value = "";
+          navigate("/browse");
         })
         .catch((error) => {
-          const errorCode = error.code;
           const errorMessage = error.message;
-          setErrorMsg("Unable To Sign In");
+          setErrorMsg(errorMessage);
         });
     }
   };
   return (
     <div className="relative h-screen w-screen">
-      <Header />
-
+      <div className="absolute px-16 py-2 w-80 bg-gradient-to-b from-black z-10">
+        <img
+          src="https://help.nflxext.com/helpcenter/OneTrust/oneTrust_production/consent/87b6a5c0-0104-4e96-a291-092c11350111/01938dc4-59b3-7bbc-b635-c4131030e85f/logos/dd6b162f-1a32-456a-9cfe-897231c7763c/4345ea78-053c-46d2-b11e-09adaef973dc/Netflix_Logo_PMS.png"
+          alt="logo"
+        />
+      </div>
       <div className="absolute inset-0 -z-10">
         <img
           src="https://assets.nflxext.com/ffe/siteui/vlv3/fa7be975-efc3-48c6-8188-f07fdd1aa476/web/IN-en-20250428-TRIFECTA-perspective_e045264e-b4d4-4a6f-b2cc-f95e3344a332_large.jpg"
@@ -102,7 +129,9 @@ const Login = () => {
               placeholder="Password"
               className="w-full p-3 mb-2 rounded bg-gray-700 text-white placeholder-white"
             />
-            <p className="font-bold text-red-800 text-xs py-3">{errorMsg}</p>
+            {errorMsg && (
+              <p className="font-bold text-red-800 text-xs py-3">{errorMsg}</p>
+            )}
             <button
               onClick={handleSignSubmit}
               style={{ backgroundColor: "red" }}
